@@ -1,8 +1,10 @@
 (ns tic-tac-toe.game)
 
-
-
 (def games (atom {}))
+
+(defn reset-games []
+  (swap! games (fn [_] {})))
+
 (defn create-new-game []
   {:public  {:game      [[0 0 0] [0 0 0] [0 0 0]]
              :id        (rand-int 1000000)
@@ -26,10 +28,14 @@
 
 (defn create-game []
   (let [game (create-new-game)]
-    (get-in (swap! games
-                   (fn [prev]
-                     (assoc prev (:id game) game)))
-            [(:id game) :public])))
+    (assoc
+      (get-in
+        (swap! games
+               (fn [prev]
+                 (assoc prev (:id (get-public game)) game)))
+        [(:id (get-public game)) :public])
+      :x
+      (get-in game [:private :players :x]))))
 
 (defn get-game [id]
   (get-public (get @games id)))
@@ -52,6 +58,7 @@
 
 (defn play-o [id [i j]]
   (play id [i j] :o))
+
 ; Conditions
 ; next turn = player
 ; i and j are not played yet

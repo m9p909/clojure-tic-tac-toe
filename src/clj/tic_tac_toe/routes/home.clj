@@ -28,12 +28,19 @@
                            (= team :o) (play-o id play)
                            )))))
 
+(defn get-game-endpoint [request]
+  (let [game (get-game (get-in request [:body :id]))]
+    (cond
+      (nil? game) (response/not-found)
+      :else (response/ok game))))
+
 (defn home-routes []
   [""
    {:middleware [middleware/wrap-csrf
                  middleware/wrap-formats]}
    ["/" {:get home-page}]
    ["/create-game" {:post create-game-endpoint}]
-   ["/play" {:post play-endpoint}]])
+   ["/play" {:post play-endpoint}]]
+  ["/get-game" {:get get-game-endpoint}])
 
 
