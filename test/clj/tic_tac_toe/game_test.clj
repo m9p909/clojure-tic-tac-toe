@@ -1,6 +1,6 @@
 (ns tic-tac-toe.game-test
   (:require [clojure.test :refer :all]
-            [tic-tac-toe.game :refer [get-game play create-game reset-games games]]))
+            [tic-tac-toe.game :refer [get-game play-x play-o create-game reset-games games join-game]]))
 
 
 (deftest create-game-test
@@ -25,5 +25,23 @@
       (is (int? (:x game)))
       (is (int? (:id game)))
       (is (= :x (:next-turn game))))))
+
+(deftest join-game-test
+          (testing "user can join game once"
+            (let [game (create-game)]
+              (join-game (:id game))
+              (nil? (join-game (:id game)))))
+
+          (testing "user gets id on join game"
+            (let [game (create-game)]
+              (int? (:id (join-game (:id game)))))))
+
+(deftest play-x
+          (testing "x user can play"
+            (let [game (create-game)
+                  user-id (:x game)
+                  game-id (:id game)]
+              (play-x game-id [0 0])
+              (= :x (get-in (get-game game-id) [:game 0 0])) ))
 
 

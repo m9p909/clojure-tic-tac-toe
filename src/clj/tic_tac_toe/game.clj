@@ -12,7 +12,7 @@
    :private {
              :players {
                        :x (rand-int 100000)
-                       :o (rand-int 100000)
+                       :o nil
                        }
              }
    })
@@ -40,24 +40,37 @@
 (defn get-game [id]
   (get-public (get @games id)))
 
-(defn play [id [i j] value]
+
+(defn join-game [id]
+  (let [o-path [:private :players :o]
+        o (get-in @(get @games id) o-path)
+        new-id (rand-int 100000)])
+  (cond
+    (nil? o) ((get-in
+                (swap!
+                  (get @games id)
+                  (fn [prev]
+                    (assoc-in prev o-path new-id))) o-path))
+    :else nil))
+
+(defn play [id [i j] value next-turn]
   (let [game (get-game id)]
     (if (= (:next-turn @game) value)
       (get-public
         (swap! game
                (fn [prev]
-                 (update-in
-                   (update-in
+                 (assoc-in
+                   (assoc-in
                      prev [:public :game i j]
-                     (fn [_] value))
+                      value)
                    [:public :next-turn]
-                   #(:x))))))))
+                   next-turn)))))))
 
 (defn play-x [id [i j]]
-  (play id [i j] :x))
+  (play id [i j] :x :o))
 
 (defn play-o [id [i j]]
-  (play id [i j] :o))
+  (play id [i j] :o :x))
 
 ; Conditions
 ; next turn = player
