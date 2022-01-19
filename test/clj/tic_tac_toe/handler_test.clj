@@ -25,3 +25,10 @@
   (testing "not-found route"
     (let [response ((app) (request :get "/invalid"))]
       (is (= 404 (:status response))))))
+
+(deftest example-game
+ (testing "x creates game"
+   (let [response ((app) (request :post "/create-game"))]
+     (transit)))
+ (testing "o joins the game"
+   (let [response ((app) (request :post "/join-game?id="+ ))])))

@@ -11,7 +11,8 @@
   (layout/render request "home.html"))
 
 (defn create-game-endpoint [request]
-  (response/created (create-game)))
+  (let [game (create-game)]
+    (response/created (str "/get-game?id=" (:id game)) game)))
 
 (defn play-endpoint [request]
   (let [body (:body request)
@@ -22,7 +23,7 @@
         team (get-player-team game player-id)]
     (cond
       (nil? game) (response/bad-request {:message "no game found"})
-      (not (playable? id player-id play team)) (response/bad-request {:message "not a valid move"})
+      (not (playable? {:id id :player-id player-id :loc play :value team})) (response/bad-request {:message "not a valid move"})
       :else (response/ok (cond
                            (= team :x) (play-x id play)
                            (= team :o) (play-o id play)
@@ -36,11 +37,10 @@
 
 (defn home-routes []
   [""
-   {:middleware [middleware/wrap-csrf
-                 middleware/wrap-formats]}
+   {:middleware [middleware/wrap-formats]}
    ["/" {:get home-page}]
    ["/create-game" {:post create-game-endpoint}]
-   ["/play" {:post play-endpoint}]]
-  ["/get-game" {:get get-game-endpoint}])
+   ["/play" {:post play-endpoint}]
+   ["/get-game" {:get get-game-endpoint}]])
 
 

@@ -3,7 +3,9 @@
     [re-frame.core :as rf]
     [ajax.core :as ajax]
     [reitit.frontend.easy :as rfe]
-    [reitit.frontend.controllers :as rfc]))
+    [reitit.frontend.controllers :as rfc]
+    [cognitect.transit :as transit]
+    [tic-tac-toe.ajax :refer [as-transit]]))
 
 ;;dispatchers
 
@@ -35,8 +37,21 @@
   (fn [_ _]
     {:http-xhrio {:method          :get
                   :uri             "/docs"
-                  :response-format (ajax/raw-response-format)
-                  :on-success       [:set-docs]}}))
+                  :response-format (ajax.core/transit-response-format)
+                  :on-success      [:set-docs]}}))
+
+(rf/reg-event-db
+  :set-game
+  (fn [db event]
+    (assoc db :game (get event 1))))
+
+(rf/reg-event-fx
+  :game/create-game
+  (fn [_ _]
+    {:http-xhrio (as-transit {:method     :post
+                              :body       {}
+                              :uri        "/create-game"
+                              :on-success [:set-game]})}))
 
 (rf/reg-event-db
   :common/set-error

@@ -20,7 +20,7 @@
     :class (when (= page @(rf/subscribe [:common/page-id])) :is-active)}
    title])
 
-(defn navbar [] 
+(defn navbar []
   (r/with-let [expanded? (r/atom false)]
               [:nav.navbar.is-info>div.container
                [:div.navbar-brand
@@ -42,8 +42,11 @@
 
 (defn home-page []
   [:section.section>div.container>div.content
-   (when-let [docs @(rf/subscribe [:docs])]
-     [:div {:dangerouslySetInnerHTML {:__html (md->html docs)}}])])
+   [:div
+    [:h1 "Play Tic Tac Toe!"]]
+   [:button.button
+    {:on-click #(rf/dispatch [:game/create-game] )} "create game"
+     ]])
 
 (defn page []
   (if-let [page @(rf/subscribe [:common/page])]
@@ -56,9 +59,10 @@
 
 (def router
   (reitit/router
-    [["/" {:name        :home
-           :view        #'home-page
-           :controllers [{:start (fn [_] (rf/dispatch [:page/init-home]))}]}]
+    [["/" {:name :home
+           :view #'home-page
+           ;:controllers [{:start (fn [_] (rf/dispatch [:page/init-home]))}]
+           }]
      ["/about" {:name :about
                 :view #'about-page}]]))
 
