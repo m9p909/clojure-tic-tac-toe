@@ -51,7 +51,21 @@
     {:http-xhrio (as-transit {:method     :post
                               :body       {}
                               :uri        "/create-game"
-                              :on-success [:set-game]})}))
+                              :on-success [:set-game]})
+     :dispatch   [:common/navigate! :game]}))
+
+(rf/reg-event-fx
+  :game/play
+  (fn [{db :db} [_ play]]
+    (let [game (:game db)
+          id (:id game)
+          player-id (if (nil? (:x game)) (:o game) (:x game))]
+      {:http-xhrio (as-transit {:method     :post
+                                :params        {:id        id
+                                             :player-id player-id
+                                             :play      play}
+                                :uri        "/play"
+                                :on-success [:game/update-game]})})))
 
 (rf/reg-event-db
   :common/set-error
@@ -91,3 +105,8 @@
   :common/error
   (fn [db _]
     (:common/error db)))
+
+(rf/reg-sub
+  :game/game
+  (fn [db _]
+    (:game db)))

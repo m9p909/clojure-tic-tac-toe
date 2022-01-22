@@ -16,7 +16,7 @@
 
 (defn nav-link [uri title page]
   [:a.navbar-item
-   {:href   uri
+   {:href  uri
     :class (when (= page @(rf/subscribe [:common/page-id])) :is-active)}
    title])
 
@@ -27,9 +27,9 @@
                 [:a.navbar-item {:href "/" :style {:font-weight :bold}} "tic-tac-toe"]
                 [:span.navbar-burger.burger
                  {:data-target :nav-menu
-                  :on-click #(swap! expanded? not)
-                  :class (when @expanded? :is-active)}
-                 [:span][:span][:span]]]
+                  :on-click    #(swap! expanded? not)
+                  :class       (when @expanded? :is-active)}
+                 [:span] [:span] [:span]]]
                [:div#nav-menu.navbar-menu
                 {:class (when @expanded? :is-active)}
                 [:div.navbar-start
@@ -45,8 +45,27 @@
    [:div
     [:h1 "Play Tic Tac Toe!"]]
    [:button.button
-    {:on-click #(rf/dispatch [:game/create-game] )} "create game"
-     ]])
+    {:on-click #(rf/dispatch [:game/create-game])} "create game"
+    ]])
+
+(defn game []
+  (let [game @(rf/subscribe [:game/game])]
+    [:section.section>div.container>div.content
+     [:div
+      [:h1 (str "Welcome Player " (if (not (nil? (:x game))) "X" "O"))]
+      (if game
+      (map-indexed (fn [i row]
+                     [:div {:key (str "row " i)}
+                      (map-indexed (fn [j cell]
+                             [:div.button
+                              {:key (str "col " j)
+                               :on-click #(rf/dispatch [:game/play [i j]])}
+                              (str cell)])
+                           row)])
+                   (:game game))
+      [:button.button.is-loading])
+      ]])
+  )
 
 (defn page []
   (if-let [page @(rf/subscribe [:common/page])]
@@ -64,7 +83,9 @@
            ;:controllers [{:start (fn [_] (rf/dispatch [:page/init-home]))}]
            }]
      ["/about" {:name :about
-                :view #'about-page}]]))
+                :view #'about-page}]
+     ["/game" {:name :game
+               :view #'game}]]))
 
 (defn start-router! []
   (rfe/start!

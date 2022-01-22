@@ -7,6 +7,7 @@
     "react-dom": "^17.0.2"
   },
   "scripts": {
-    "watch": "shadow-cljs watch app"
+    "watch": "shadow-cljs watch app",
+    "browser-repl": "shadow-cljs browser-repl"
   }
 }

@@ -14,13 +14,17 @@
   (let [game (create-game)]
     (response/created (str "/get-game?id=" (:id game)) game)))
 
+(def last-request (atom {}))
+
 (defn play-endpoint [request]
+  (swap! last-request (fn [prev] request))
   (let [body (:body request)
         {id        :id
          player-id :player
          play      :play} body
         game (get-game id)
         team (get-player-team game player-id)]
+
     (cond
       (nil? game) (response/bad-request {:message "no game found"})
       (not (playable? {:id id :player-id player-id :loc play :value team})) (response/bad-request {:message "not a valid move"})

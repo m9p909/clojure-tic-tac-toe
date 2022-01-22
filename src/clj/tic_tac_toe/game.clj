@@ -43,6 +43,7 @@
 
 (defn get-game [id]
   (get-public @(get @games id)))
+
 (defn- get-game-full [id]
   (get @games id))
 
