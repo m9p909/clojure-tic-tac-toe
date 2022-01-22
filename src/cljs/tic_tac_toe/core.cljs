@@ -98,7 +98,7 @@
   (reitit/router
     [["/" {:name :home
            :view #'home-page
-           :controllers [{:start (fn [_] (print "home-page started") (rf/dispatch [:game/clean]))}]
+           :controllers [{:start (fn [_]  (rf/dispatch [:game/clean]))}]
            }]
      ["/about" {:name :about
                 :view #'about-page}]

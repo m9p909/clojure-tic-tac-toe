@@ -8,6 +8,7 @@
   },
   "scripts": {
     "watch": "shadow-cljs watch app",
-    "browser-repl": "shadow-cljs browser-repl"
+    "browser-repl": "shadow-cljs browser-repl",
+    "release": "shadow-cljs release app"
   }
 }

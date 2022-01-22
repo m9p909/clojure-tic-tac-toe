@@ -65,7 +65,6 @@
     (if (:game db)
       (let [game (:game db)]
         (js/setTimeout #(rf/dispatch [:game/game-clock]) 1000)
-        (println game)
         {:dispatch [:game/update (:id game)]})
       {})))
 
