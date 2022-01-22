@@ -40,30 +40,48 @@
   [:section.section>div.container>div.content
    [:img {:src "/img/warning_clojure.png"}]])
 
+(def id (r/atom 0))
 (defn home-page []
   [:section.section>div.container>div.content
    [:div
     [:h1 "Play Tic Tac Toe!"]]
    [:button.button
     {:on-click #(rf/dispatch [:game/create-game])} "create game"
-    ]])
+    ]
+   [:div
+    [:br]
+    [:h2 "Join a game!"]
+    [:form {:on-submit (fn [event] (.preventDefault event)
+                         (rf/dispatch [:game/join-game (int @id)]))}
+     [:input.input {:type      :number
+                    :value     @id
+                    :on-change (fn [evt] (let [value (-> evt .-target .-value)]
+                                           (reset! id value)
+                                           ))}]
+     [:button.button {:type :submit} "Join Game"]]]])
 
 (defn game []
   (let [game @(rf/subscribe [:game/game])]
     [:section.section>div.container>div.content
      [:div
       [:h1 (str "Welcome Player " (if (not (nil? (:x game))) "X" "O"))]
+      [:h2 (str "room code is " (:id game))]
       (if game
-      (map-indexed (fn [i row]
-                     [:div {:key (str "row " i)}
-                      (map-indexed (fn [j cell]
-                             [:div.button
-                              {:key (str "col " j)
-                               :on-click #(rf/dispatch [:game/play [i j]])}
-                              (str cell)])
-                           row)])
-                   (:game game))
-      [:button.button.is-loading])
+        (map-indexed (fn [i row]
+                       [:div {:key (str "row " i)}
+                        (map-indexed (fn [j cell]
+                                       [:div.button
+                                        {:key      (str "col " j)
+                                         :on-click #(rf/dispatch [:game/play [i j]])
+                                         :style {:width "50px"
+                                                 :height "50px"}}
+                                        (cond
+                                          (= cell :x) "X"
+                                          (= cell :o) "O"
+                                          :else "")])
+                                     row)])
+                     (:game game))
+        [:button.button.is-loading])
       ]])
   )
 
@@ -80,7 +98,7 @@
   (reitit/router
     [["/" {:name :home
            :view #'home-page
-           ;:controllers [{:start (fn [_] (rf/dispatch [:page/init-home]))}]
+           :controllers [{:start (fn [_] (print "home-page started") (rf/dispatch [:game/clean]))}]
            }]
      ["/about" {:name :about
                 :view #'about-page}]

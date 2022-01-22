@@ -43,7 +43,36 @@
 (rf/reg-event-db
   :set-game
   (fn [db event]
-    (assoc db :game (get event 1))))
+    (assoc db :game (merge (:game db) (get event 1)))))
+
+(rf/reg-event-fx
+  :start-game
+  (fn [_ [_ new-game]]
+    {:fx [[:dispatch [:set-game new-game]]
+          [:dispatch [:common/navigate! :game]]
+          [:dispatch [:game/game-clock]]]}))
+
+(rf/reg-event-fx
+  :game/update
+  (fn [_ [_ id]]
+    {:http-xhrio (as-transit {:method     :get
+                              :params     {:id id}
+                              :uri        "/get-game"
+                              :on-success [:set-game]})}))
+(rf/reg-event-fx
+  :game/game-clock
+  (fn [{db :db} _]
+    (if (:game db)
+      (let [game (:game db)]
+        (js/setTimeout #(rf/dispatch [:game/game-clock]) 1000)
+        (println game)
+        {:dispatch [:game/update (:id game)]})
+      {})))
+
+(rf/reg-event-db
+  :game/clean
+  (fn [db event]
+    (dissoc db :game)))
 
 (rf/reg-event-fx
   :game/create-game
@@ -51,8 +80,14 @@
     {:http-xhrio (as-transit {:method     :post
                               :body       {}
                               :uri        "/create-game"
-                              :on-success [:set-game]})
-     :dispatch   [:common/navigate! :game]}))
+                              :on-success [:start-game]})}))
+(rf/reg-event-fx
+  :game/join-game
+  (fn [_ [_ id]]
+    {:http-xhrio (as-transit {:method     :post
+                              :params     {:id id}
+                              :uri        "/join-game"
+                              :on-success [:start-game]})}))
 
 (rf/reg-event-fx
   :game/play
@@ -61,11 +96,11 @@
           id (:id game)
           player-id (if (nil? (:x game)) (:o game) (:x game))]
       {:http-xhrio (as-transit {:method     :post
-                                :params        {:id        id
+                                :params     {:id        id
                                              :player-id player-id
                                              :play      play}
                                 :uri        "/play"
-                                :on-success [:game/update-game]})})))
+                                :on-success [:set-game]})})))
 
 (rf/reg-event-db
   :common/set-error
@@ -75,7 +110,7 @@
 (rf/reg-event-fx
   :page/init-home
   (fn [_ _]
-    {:dispatch [:fetch-docs]}))
+    {:dispatch [:game/clean]}))
 
 ;;subscriptions
 

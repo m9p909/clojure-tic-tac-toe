@@ -17,11 +17,6 @@
              }
    })
 
-(defn get-player-team [game id]
-  (get
-    (clojure.set/map-invert
-      (get-in game [:private :players]))
-    id))
 
 (defn- get-public [game]
   (:public game))
@@ -41,25 +36,31 @@
       :x
       (get-in game [:private :players :x]))))
 
-(defn get-game [id]
-  (get-public @(get @games id)))
+
 
 (defn- get-game-full [id]
   (get @games id))
 
+(defn get-game [id]
+  (let [game (get-game-full id)]
+    (if game
+      (get-public @game)
+      nil)))
 
 (defn join-game [id]
   (let [o-path [:private :players :o]
-        o (get-in @(get @games id) o-path)
+        game (get-game-full id)
+        o (if game (get-in @game o-path) "game not found")
         new-id (rand-int 100000)]
     (cond
-      (nil? o) (get-in
-                 (swap!
-                   (get @games id)
-                   (fn [prev]
-                     (assoc-in prev o-path new-id))) o-path)
-      :else nil))
-  )
+      (nil? o)
+      (let [new-game (swap!
+                       (get-game-full id)
+                       (fn [prev]
+                         (assoc-in prev o-path new-id)))]
+        (-> new-game :public (assoc :o (get-in new-game o-path))))
+
+      :else nil)))
 
 (defn- play [id [i j] value next-turn]
   (let [game (get-game-full id)]
@@ -80,6 +81,12 @@
 (defn play-o [id [i j]]
   (play id [i j] :o :x))
 
+(defn get-player-team [game-id player-id]
+  (get
+    (clojure.set/map-invert
+      (get-in @(get-game-full game-id) [:private :players]))
+    player-id))
+
 ; Conditions
 
 ; Checks if a move is valid from a specific player
@@ -92,6 +99,8 @@
     (and (= (get-in game [:public :next-turn]) (keyword value))
          (= (get-in game [:private :players (keyword value)]) player-id)
          (= 0 (get-in game [:public :game i j])))))
+
+
 
 
 

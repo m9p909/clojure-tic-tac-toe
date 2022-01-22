@@ -30,11 +30,12 @@
   (testing "user can join game once"
     (let [game (create-game)]
       (join-game (:id game))
-      (nil? (join-game (:id game)))))
+      (is (nil? (join-game (:id game))))))
 
   (testing "user gets id on join game"
     (let [game (create-game)]
-      (int? (:id (join-game (:id game)))))))
+      (is
+        (int? (:id (join-game (:id game))))))))
 
 (defn get-at [game [i j]]
   (get-in game [:game i j]))
@@ -56,7 +57,7 @@
 (deftest playable?-test
   (let [game (create-game)
         id (:id game)
-        o-id (join-game id)]
+        o-id (:o (join-game id))]
     (testing "playable x"
       (is
         (playable? {:id        id
