@@ -2,7 +2,10 @@
 
 generated using Luminus version "4.30"
 
-FIXME
+I wrote this small two player tic tac toe game for fun. I figured it would be a good way to get familiar with clojure. There is lots of innovative and interesting things in the luminus framework/template. 
+
+- the request and response type is defined in the headers
+- the pipeline style of functional thinking is really good for backend servers because most of them have a couple simple steps. receive data -> format data -> validate data -> fetch response data from db -> format data -> return data. I think this model would allow a configuration based approach where each endpoint is essentially a map of data or functions.
 
 ## Prerequisites
 
