@@ -6,6 +6,8 @@ I wrote this small two player tic tac toe game for fun. I figured it would be a 
 
 - the request and response type is defined in the headers
 - the pipeline style of functional thinking is really good for backend servers because most of them have a couple simple steps. receive data -> format data -> validate data -> fetch response data from db -> format data -> return data. I think this model would allow a configuration based approach where each endpoint is essentially a map of data or functions.
+- Frontend is in re-frame, which is kind of like react and redux combined together
+- https://tic-tac-toe-clojure123.herokuapp.com/
 
 ## Prerequisites
 
